@@ -1,0 +1,23 @@
+# Virtuelle Umgebung und Site-Packages
+venv/
+lib/python*/site-packages/
+lib64/
+
+
+# Python-Wheels
+share/python-wheels/
+
+# Python Cache-Dateien
+__pycache__/
+*.pyc
+*.pyo
+
+# Konfigurations- und Log-Dateien
+*.cfg
+*.log
+
+# System-Dateien
+.DS_Store
+Thumbs.db
+rss_cache.db
+.gitignore.backup

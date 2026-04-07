@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS Feed Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .feed-box {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            background-color: #0066cc;
+            color: #fff;
+            border-radius: 5px;
+        }
+        .feed-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .feed-header span {
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .feed-header.collapsed span {
+            transform: rotate(-90deg);
+        }
+        .feed-entries {
+            padding: 10px;
+            display: none;
+        }
+        .feed-entries.active {
+            display: block;
+        }
+        .entry {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .entry:last-child {
+            border-bottom: none;
+        }
+        .entry a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        .entry a:hover {
+            color: #0066cc;
+        }
+        .entry .published-date {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+        }
+        .important {
+            background-color: #ffe4b5;
+            border-left: 5px solid orange;
+            padding-left: 10px;
+        }
+        .important a {
+            color: #cc5200;
+        }
+        .important a:hover {
+            color: #ff6600;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #004c99;
+            color: #fff;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid #fff;
+            font-size: 1em;
+        }
+        .filter-btn.active {
+            background-color: #ff6600;
+        }
+        .filter-btn.inactive {
+            background-color: #004c99;
+        }
+        .no-entries {
+            text-align: center;
+            color: #888;
+            padding: 40px 0;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>RSS Feed Viewer</h1>
+        <form action="/search" method="get" style="margin-top: 10px; text-align: center;">
+            <input
+                type="text"
+                name="q"
+                placeholder="Suche nach CVE, Technologien, etc."
+                style="padding: 5px; width: 50%; border: 1px solid #ddd; border-radius: 3px;">
+            <button type="submit" style="padding: 5px 10px; background-color: #0044aa; color: #fff; border: none; border-radius: 3px; cursor: pointer;">
+                Suchen
+            </button>
+        </form>
+    </header>
+
+    <nav class="navbar">
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <a href="/reports">Berichte</a>
+            <a href="/admin">⚙ Admin</a>
+        </div>
+        <a href="/?filter={% if only_important %}all{% else %}important{% endif %}"
+           class="filter-btn {% if only_important %}active{% else %}inactive{% endif %}">
+            ⚠ Nur Wichtige{% if only_important %} (aktiv){% endif %}
+        </a>
+    </nav>
+
+    <div class="container">
+        {% if feeds %}
+            {% for source, entries in feeds.items() %}
+            <div class="feed-box">
+                <div class="feed-header" onclick="toggleFeed(this)">
+                    <h2>{{ source }}</h2>
+                    <span>▼</span>
+                </div>
+                <div class="feed-entries {% if only_important %}active{% endif %}">
+                    {% for entry in prioritized_entries(entries) %}
+                    <div class="entry {% if entry.important %}important{% endif %}">
+                        <a href="{{ entry.link }}" target="_blank">
+                            {% if entry.important %}⚠ {% endif %}{{ entry.title }}
+                        </a>
+                        <div class="published-date">{{ entry.published }}</div>
+                    </div>
+                    {% endfor %}
+                    {% if entries|length == 0 %}
+                    <p>Keine aktuellen Einträge.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-entries">
+                <p>⚠ Keine wichtigen Artikel gefunden.</p>
+                <a href="/" style="color: #0066cc;">← Alle Artikel anzeigen</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleFeed(headerElement) {
+            const entries = headerElement.nextElementSibling;
+            entries.classList.toggle('active');
+            headerElement.classList.toggle('collapsed');
+        }
+    </script>
+</body>
+</html>

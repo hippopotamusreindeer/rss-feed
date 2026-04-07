@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berichte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #0066cc;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #004c99;
+            color: #fff;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .report-date {
+            background-color: #0066cc;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .report-entry {
+            background: #fff;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+        .report-entry a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        .report-entry a:hover {
+            color: #0066cc;
+        }
+        .report-entry .source {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Berichte</h1>
+    </header>
+    <nav class="navbar">
+        <a href="/">← Zur Startseite</a>
+        <a href="/reports">Berichte</a>
+    </nav>
+    <div class="container">
+        {% if reports %}
+        {% for date, entries in reports.items() %}
+        <div>
+            <h2 class="report-date">{{ date }}</h2>
+            {% for entry in entries %}
+            <div class="report-entry">
+                <a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a>
+                <div class="source">Quelle: {{ entry.source }} | Veröffentlicht: {{ entry.published }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>Keine Berichte verfügbar.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

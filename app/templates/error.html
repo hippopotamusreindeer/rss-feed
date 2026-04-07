@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehler {{ code }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #0f1117;
+            --surface: #1a1d27;
+            --border:  #2a2d3a;
+            --accent:  #f59e0b;
+            --red:     #ef4444;
+            --text:    #e2e8f0;
+            --muted:   #64748b;
+            --mono:    'IBM Plex Mono', monospace;
+            --sans:    'IBM Plex Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .error-code {
+            font-family: var(--mono);
+            font-size: clamp(5rem, 20vw, 9rem);
+            font-weight: 700;
+            color: var(--surface);
+            letter-spacing: -0.04em;
+            line-height: 1;
+            position: relative;
+            user-select: none;
+        }
+
+        .error-code::after {
+            content: attr(data-code);
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--red), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            clip-path: polygon(0 0, 100% 0, 100% 55%, 0 55%);
+        }
+
+        .divider {
+            width: 3rem;
+            height: 2px;
+            background: var(--border);
+            margin: 1.75rem auto;
+        }
+
+        h1 {
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            text-align: center;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 380px;
+            line-height: 1.65;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-home {
+            display: inline-block;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            padding: 0.7rem 1.5rem;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-home:hover {
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.06);
+        }
+
+        .stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="stack">
+        <div class="error-code" data-code="{{ code }}">{{ code }}</div>
+        <div class="divider"></div>
+        <h1>{{ title }}</h1>
+        <p>{{ message }}</p>
+        <a class="btn-home" href="/">← Zurück zur Startseite</a>
+    </div>
+</body>
+</html>
