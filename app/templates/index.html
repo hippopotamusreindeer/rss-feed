@@ -1,195 +1,488 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSS Feed Viewer</title>
+    <title>Security RSS Feed</title>
     <style>
+        /* ── Basis ──────────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:        #0d1117;
+            --surface:   #161b22;
+            --surface2:  #1e2633;
+            --border:    #30363d;
+            --accent:    #58a6ff;
+            --text:      #c9d1d9;
+            --text-dim:  #8b949e;
+            --red:       #f85149;
+            --orange:    #d29922;
+            --yellow:    #e3b341;
+            --green:     #3fb950;
+            --blue:      #388bfd;
+            --purple:    #bc8cff;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
         }
+
+        /* ── Header ─────────────────────────────────────────────────── */
         header {
-            background-color: #0066cc;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: var(--accent);
+        }
+        header h1 span { color: var(--text-dim); font-weight: 400; }
+
+        .search-row {
+            display: flex;
+            gap: 8px;
+        }
+        .search-row input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: .9rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .search-row input:focus { border-color: var(--accent); }
+        .search-row button {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: .9rem;
+            transition: opacity .2s;
+        }
+        .search-row button:hover { opacity: .85; }
+
+        /* ── Navbar ──────────────────────────────────────────────────── */
+        nav {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: .9rem;
+            transition: color .2s;
+        }
+        .nav-links a:hover { color: var(--accent); }
+
+        .filter-group { display: flex; gap: 8px; align-items: center; }
+
+        .btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s, border-color .2s;
+        }
+        .btn-ghost { background: transparent; color: var(--text-dim); }
+        .btn-ghost:hover { background: var(--surface); color: var(--text); }
+        .btn-active { background: #d29922; border-color: #d29922; color: #000; }
+        .btn-sort { background: var(--surface); color: var(--text-dim); }
+        .btn-sort.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+        /* ── Container ───────────────────────────────────────────────── */
         .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
+            max-width: 960px;
+            margin: 24px auto;
+            padding: 0 16px;
         }
+
+        /* ── Feed Box ────────────────────────────────────────────────── */
         .feed-box {
-            background: #fff;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
         }
+
         .feed-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 12px 16px;
             cursor: pointer;
-            padding: 10px;
-            background-color: #0066cc;
-            color: #fff;
-            border-radius: 5px;
+            user-select: none;
+            transition: background .2s;
         }
+        .feed-header:hover { background: var(--surface2); }
         .feed-header h2 {
-            margin: 0;
-            font-size: 1.5em;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
         }
-        .feed-header span {
-            font-size: 1.2em;
-            font-weight: bold;
-            transition: transform 0.3s ease;
+        .feed-header .toggle-icon {
+            color: var(--text-dim);
+            font-size: .85rem;
+            transition: transform .25s;
         }
-        .feed-header.collapsed span {
-            transform: rotate(-90deg);
-        }
-        .feed-entries {
-            padding: 10px;
-            display: none;
-        }
-        .feed-entries.active {
-            display: block;
-        }
+        .feed-header.collapsed .toggle-icon { transform: rotate(-90deg); }
+
+        .feed-entries { display: none; }
+        .feed-entries.active { display: block; }
+
+        /* ── Entry ───────────────────────────────────────────────────── */
         .entry {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            transition: background .15s;
         }
-        .entry:last-child {
-            border-bottom: none;
-        }
-        .entry a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-        .entry a:hover {
-            color: #0066cc;
-        }
-        .entry .published-date {
-            font-size: 0.9em;
-            color: #555;
-            margin-top: 5px;
-        }
-        .important {
-            background-color: #ffe4b5;
-            border-left: 5px solid orange;
-            padding-left: 10px;
-        }
-        .important a {
-            color: #cc5200;
-        }
-        .important a:hover {
-            color: #ff6600;
-        }
-        .navbar {
+        .entry:hover { background: var(--surface2); }
+
+        .entry.critical { border-left: 3px solid var(--red); }
+        .entry.high     { border-left: 3px solid var(--orange); }
+        .entry.medium   { border-left: 3px solid var(--yellow); }
+        .entry.low      { border-left: 3px solid var(--border); }
+        .entry.important.critical { background: rgba(248,81,73,.06); }
+        .entry.important.high     { background: rgba(210,153,34,.06); }
+
+        .entry-title-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #004c99;
-            color: #fff;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
         }
-        .navbar a {
-            color: #fff;
+
+        .entry a {
+            color: var(--text);
             text-decoration: none;
-            font-size: 1.1em;
+            font-size: .92rem;
+            font-weight: 500;
+            line-height: 1.4;
+            flex: 1;
         }
-        .navbar a:hover {
-            text-decoration: underline;
+        .entry a:hover { color: var(--accent); }
+
+        .entry-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
         }
-        .filter-btn {
-            padding: 6px 14px;
+
+        /* ── Severity Badge ──────────────────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 7px;
             border-radius: 4px;
-            border: 1px solid #fff;
-            font-size: 1em;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            white-space: nowrap;
         }
-        .filter-btn.active {
-            background-color: #ff6600;
+        .badge-critical { background: rgba(248,81,73,.18); color: var(--red);    border: 1px solid rgba(248,81,73,.35); }
+        .badge-high     { background: rgba(210,153,34,.18); color: var(--orange); border: 1px solid rgba(210,153,34,.35); }
+        .badge-medium   { background: rgba(227,179,65,.18); color: var(--yellow); border: 1px solid rgba(227,179,65,.35); }
+        .badge-low      { background: rgba(139,148,158,.12); color: var(--text-dim); border: 1px solid var(--border); }
+
+        /* ── MITRE Badge ─────────────────────────────────────────────── */
+        .badge-mitre {
+            background: rgba(188,140,255,.12);
+            color: var(--purple);
+            border: 1px solid rgba(188,140,255,.3);
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: help;
+            white-space: nowrap;
         }
-        .filter-btn.inactive {
-            background-color: #004c99;
+
+        /* ── CVE Badge ───────────────────────────────────────────────── */
+        .badge-cve {
+            background: rgba(56,139,253,.12);
+            color: var(--blue);
+            border: 1px solid rgba(56,139,253,.3);
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
         }
+        .badge-cve:hover { background: rgba(56,139,253,.25); }
+
+        /* ── CVE Detail Panel ────────────────────────────────────────── */
+        .cve-panel {
+            display: none;
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: .82rem;
+        }
+        .cve-panel.open { display: block; }
+        .cve-panel .cve-loading { color: var(--text-dim); }
+        .cve-panel .cve-score {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .cve-panel .cve-desc { color: var(--text-dim); line-height: 1.5; }
+        .cve-panel .cve-link { color: var(--accent); text-decoration: none; font-size: .8rem; }
+        .cve-panel .cve-link:hover { text-decoration: underline; }
+
+        /* ── Date ────────────────────────────────────────────────────── */
+        .published-date {
+            font-size: .78rem;
+            color: var(--text-dim);
+        }
+
+        /* ── Empty ───────────────────────────────────────────────────── */
         .no-entries {
             text-align: center;
-            color: #888;
-            padding: 40px 0;
-            font-size: 1.1em;
+            padding: 60px 20px;
+            color: var(--text-dim);
         }
+        .no-entries a { color: var(--accent); text-decoration: none; }
+        .no-entries a:hover { text-decoration: underline; }
+
+        /* ── Legend ──────────────────────────────────────────────────── */
+        .legend {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: .78rem;
+            color: var(--text-dim);
+            padding: 0 0 16px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>RSS Feed Viewer</h1>
-        <form action="/search" method="get" style="margin-top: 10px; text-align: center;">
-            <input
-                type="text"
-                name="q"
-                placeholder="Suche nach CVE, Technologien, etc."
-                style="padding: 5px; width: 50%; border: 1px solid #ddd; border-radius: 3px;">
-            <button type="submit" style="padding: 5px 10px; background-color: #0044aa; color: #fff; border: none; border-radius: 3px; cursor: pointer;">
-                Suchen
-            </button>
-        </form>
-    </header>
 
-    <nav class="navbar">
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <a href="/reports">Berichte</a>
-            <a href="/admin">⚙ Admin</a>
-        </div>
+<header>
+    <h1>🛡 Security RSS Feed <span>/ Threat Intelligence Dashboard</span></h1>
+    <form action="/search" method="get" class="search-row">
+        <input type="text" name="q" placeholder="Suche nach CVE, Technologien, Bedrohungen …">
+        <button type="submit">Suchen</button>
+    </form>
+</header>
+
+<nav>
+    <div class="nav-links">
+        <a href="/reports">📋 Berichte</a>
+        <a href="/admin">⚙ Admin</a>
+    </div>
+    <div class="filter-group">
+        <!-- Severity-Sortierung -->
+        <a href="?filter={% if not only_important %}all{% else %}important{% endif %}&sort=severity"
+           class="btn btn-sort {% if sort_by == 'severity' %}active{% endif %}">⬆ Severity</a>
+        <a href="?filter={% if not only_important %}all{% else %}important{% endif %}&sort=date"
+           class="btn btn-sort {% if sort_by == 'date' %}active{% endif %}">🕒 Datum</a>
+
+        <!-- Wichtige-Filter -->
         <a href="/?filter={% if only_important %}all{% else %}important{% endif %}"
-           class="filter-btn {% if only_important %}active{% else %}inactive{% endif %}">
-            ⚠ Nur Wichtige{% if only_important %} (aktiv){% endif %}
+           class="btn {% if only_important %}btn-active{% else %}btn-ghost{% endif %}">
+            ⚠ Wichtige{% if only_important %} (aktiv){% endif %}
         </a>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container">
-        {% if feeds %}
-            {% for source, entries in feeds.items() %}
-            <div class="feed-box">
-                <div class="feed-header" onclick="toggleFeed(this)">
-                    <h2>{{ source }}</h2>
-                    <span>▼</span>
-                </div>
-                <div class="feed-entries {% if only_important %}active{% endif %}">
-                    {% for entry in prioritized_entries(entries) %}
-                    <div class="entry {% if entry.important %}important{% endif %}">
-                        <a href="{{ entry.link }}" target="_blank">
-                            {% if entry.important %}⚠ {% endif %}{{ entry.title }}
-                        </a>
-                        <div class="published-date">{{ entry.published }}</div>
-                    </div>
-                    {% endfor %}
-                    {% if entries|length == 0 %}
-                    <p>Keine aktuellen Einträge.</p>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-entries">
-                <p>⚠ Keine wichtigen Artikel gefunden.</p>
-                <a href="/" style="color: #0066cc;">← Alle Artikel anzeigen</a>
-            </div>
-        {% endif %}
+<div class="container">
+
+    <!-- Severity-Legende -->
+    <div class="legend">
+        <span>Severity:</span>
+        <span class="legend-item"><span class="badge badge-critical">CRITICAL</span></span>
+        <span class="legend-item"><span class="badge badge-high">HIGH</span></span>
+        <span class="legend-item"><span class="badge badge-medium">MEDIUM</span></span>
+        <span class="legend-item"><span class="badge badge-low">LOW</span></span>
+        <span style="margin-left:8px;">Tags:</span>
+        <span class="legend-item"><span class="badge badge-mitre">T1566</span> MITRE ATT&amp;CK</span>
+        <span class="legend-item"><span class="badge badge-cve">CVE-…</span> NVD-Daten abrufbar</span>
     </div>
 
-    <script>
-        function toggleFeed(headerElement) {
-            const entries = headerElement.nextElementSibling;
-            entries.classList.toggle('active');
-            headerElement.classList.toggle('collapsed');
+    {% if feeds %}
+        {% for source, entries in feeds.items() %}
+        {% set sorted_entries = prioritized_entries(entries) if sort_by != 'date' else entries %}
+        <div class="feed-box">
+            <div class="feed-header" onclick="toggleFeed(this)">
+                <h2>{{ source }}
+                    <span style="font-weight:400; font-size:.8rem; color:var(--text-dim); margin-left:8px;">
+                        ({{ entries|length }})
+                    </span>
+                </h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+
+            <div class="feed-entries {% if only_important %}active{% endif %}">
+                {% for entry in sorted_entries %}
+                {% set sev = entry.severity | lower %}
+                <div class="entry {{ sev }} {% if entry.important %}important{% endif %}">
+
+                    <div class="entry-title-row">
+                        {% if entry.important %}<span title="Priority-Word Match">⚠</span>{% endif %}
+                        <a href="{{ entry.link }}" target="_blank" rel="noopener">{{ entry.title }}</a>
+                    </div>
+
+                    <div class="entry-meta">
+                        <!-- Severity Badge -->
+                        <span class="badge badge-{{ sev }}">
+                            {% if sev == 'critical' %}🔴
+                            {% elif sev == 'high' %}🟠
+                            {% elif sev == 'medium' %}🟡
+                            {% else %}⚪
+                            {% endif %}
+                            {{ entry.severity }}
+                        </span>
+
+                        <!-- MITRE ATT&CK Tags -->
+                        {% for tag in entry.mitre_tags %}
+                        {% set tid = tag.split('–')[0].strip() %}
+                        {% set tname = tag.split('–')[1].strip() if '–' in tag else tag %}
+                        <span class="badge badge-mitre" title="{{ tname }}">{{ tid }}</span>
+                        {% endfor %}
+
+                        <!-- CVE Badges (klickbar → NVD Lookup) -->
+                        {% for cve_id in entry.cve_ids %}
+                        <span class="badge badge-cve"
+                              onclick="lookupCVE('{{ cve_id }}', this)"
+                              title="NVD-Daten laden für {{ cve_id }}">
+                            {{ cve_id }}
+                        </span>
+                        {% endfor %}
+
+                        <!-- Datum -->
+                        <span class="published-date">{{ entry.published }}</span>
+                    </div>
+
+                    <!-- CVE Detail Panel (wird per JS gefüllt) -->
+                    {% for cve_id in entry.cve_ids %}
+                    <div class="cve-panel" id="panel-{{ cve_id }}-{{ loop.index }}"></div>
+                    {% endfor %}
+
+                </div>
+                {% endfor %}
+
+                {% if entries|length == 0 %}
+                <div style="padding:20px; color:var(--text-dim); text-align:center;">
+                    Keine aktuellen Einträge.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-entries">
+            <p style="font-size:1.5rem; margin-bottom:12px;">🔍</p>
+            <p>Keine wichtigen Artikel gefunden.</p>
+            <a href="/?filter=all">← Alle Artikel anzeigen</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // ── Feed Toggle ──────────────────────────────────────────────────────────
+    function toggleFeed(header) {
+        const entries = header.nextElementSibling;
+        entries.classList.toggle('active');
+        header.classList.toggle('collapsed');
+    }
+
+    // ── NVD CVE Lookup ───────────────────────────────────────────────────────
+    const cveCache = {};
+
+    function lookupCVE(cveId, badgeEl) {
+        // Panel suchen: das nächste .cve-panel mit passender ID in der Entry
+        const entry = badgeEl.closest('.entry');
+        const panels = entry.querySelectorAll('.cve-panel');
+        let panel = null;
+        panels.forEach(p => {
+            if (p.id.startsWith('panel-' + cveId)) panel = p;
+        });
+        if (!panel) return;
+
+        // Toggle: Panel schließen falls schon offen
+        if (panel.classList.contains('open')) {
+            panel.classList.remove('open');
+            return;
         }
-    </script>
+        panel.classList.add('open');
+
+        // Aus Cache bedienen
+        if (cveCache[cveId]) {
+            renderCVE(panel, cveId, cveCache[cveId]);
+            return;
+        }
+
+        panel.innerHTML = '<span class="cve-loading">⏳ NVD-Daten werden abgerufen …</span>';
+
+        fetch(`/api/cve/${cveId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    panel.innerHTML = `<span style="color:var(--red)">⚠ ${data.error}</span>`;
+                    return;
+                }
+                cveCache[cveId] = data;
+                renderCVE(panel, cveId, data);
+            })
+            .catch(() => {
+                panel.innerHTML = '<span style="color:var(--red)">⚠ API nicht erreichbar.</span>';
+            });
+    }
+
+    function renderCVE(panel, cveId, d) {
+        const severityColors = {
+            CRITICAL: 'var(--red)',
+            HIGH:     'var(--orange)',
+            MEDIUM:   'var(--yellow)',
+            LOW:      'var(--green)',
+        };
+        const color = severityColors[d.cvss_severity] || 'var(--text)';
+        panel.innerHTML = `
+            <div class="cve-score" style="color:${color}">
+                ${d.cvss_score !== null ? `CVSS ${d.cvss_version}: ${d.cvss_score} – ${d.cvss_severity}` : 'Kein CVSS Score verfügbar'}
+            </div>
+            <div class="cve-desc">${d.description}</div>
+            <a class="cve-link" href="https://nvd.nist.gov/vuln/detail/${cveId}" target="_blank" rel="noopener">
+                → NVD Details ansehen
+            </a>`;
+    }
+</script>
 </body>
 </html>
