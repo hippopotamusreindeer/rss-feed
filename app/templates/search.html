@@ -1,149 +1,365 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suchergebnisse</title>
+    <title>Suche – Security RSS Feed</title>
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:        #0d1117;
+            --surface:   #161b22;
+            --surface2:  #1e2633;
+            --border:    #30363d;
+            --accent:    #58a6ff;
+            --text:      #c9d1d9;
+            --text-dim:  #8b949e;
+            --red:       #f85149;
+            --orange:    #d29922;
+            --yellow:    #e3b341;
+            --green:     #3fb950;
+            --blue:      #388bfd;
+            --purple:    #bc8cff;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
         }
+
+        /* ── Header ─────────────────────────────────────────────────── */
         header {
-            background-color: #0066cc;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-        }
-        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #004c99;
-            color: #fff;
+            flex-direction: column;
+            gap: 12px;
         }
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2em;
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
         }
-        .navbar a:hover {
-            text-decoration: underline;
-        }
-        .search-form {
+        header h1 span { color: var(--text-dim); font-weight: 400; }
+
+        .search-row {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            gap: 8px;
         }
-        .search-form input {
-            padding: 5px;
-            width: 300px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+        .search-row input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: .9rem;
+            outline: none;
+            transition: border-color .2s;
         }
-        .search-form button {
-            padding: 5px 10px;
-            background-color: #0066cc;
-            color: #fff;
+        .search-row input:focus { border-color: var(--accent); }
+        .search-row button {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: #000;
             border: none;
-            border-radius: 3px;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
+            font-size: .9rem;
+            transition: opacity .2s;
         }
-        .search-form button:hover {
-            background-color: #004c99;
+        .search-row button:hover { opacity: .85; }
+
+        /* ── Navbar ──────────────────────────────────────────────────── */
+        nav {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: .9rem;
+            transition: color .2s;
+        }
+        nav a:hover { color: var(--accent); }
+
+        /* ── Container ───────────────────────────────────────────────── */
         .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
+            max-width: 960px;
+            margin: 24px auto;
+            padding: 0 16px;
         }
+
+        /* ── Ergebnis-Zusammenfassung ────────────────────────────────── */
+        .results-summary {
+            font-size: .85rem;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+        .results-summary strong { color: var(--accent); }
+
+        /* ── Source Box ──────────────────────────────────────────────── */
         .results-box {
-            background: #fff;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
         }
         .results-box h2 {
-            margin: 0;
-            font-size: 1.5em;
-            color: #0066cc;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
         }
+
+        /* ── Entry ───────────────────────────────────────────────────── */
         .entry {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            transition: background .15s;
         }
-        .entry:last-child {
-            border-bottom: none;
-        }
-        .entry a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-        .entry a:hover {
-            color: #0066cc;
-        }
-        .entry .published-date {
-            font-size: 0.9em;
-            color: #555;
-            margin-top: 5px;
-        }
-        .navbar {
+        .entry:first-of-type { border-top: none; }
+        .entry:hover { background: var(--surface2); }
+
+        .entry.critical { border-left: 3px solid var(--red); }
+        .entry.high     { border-left: 3px solid var(--orange); }
+        .entry.medium   { border-left: 3px solid var(--yellow); }
+        .entry.low      { border-left: 3px solid var(--border); }
+
+        .entry-title-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #004c99;
-            color: #fff;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
         }
-        .navbar a {
-            color: #fff;
+        .entry a.title-link {
+            color: var(--text);
             text-decoration: none;
-            font-size: 1.2em;
+            font-size: .92rem;
+            font-weight: 500;
+            line-height: 1.4;
+            flex: 1;
         }
-        .navbar a:hover {
-            text-decoration: underline;
+        .entry a.title-link:hover { color: var(--accent); }
+
+        .entry-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
         }
+
+        /* ── Badges ──────────────────────────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            white-space: nowrap;
+        }
+        .badge-critical { background: rgba(248,81,73,.18);  color: var(--red);    border: 1px solid rgba(248,81,73,.35); }
+        .badge-high     { background: rgba(210,153,34,.18); color: var(--orange); border: 1px solid rgba(210,153,34,.35); }
+        .badge-medium   { background: rgba(227,179,65,.18); color: var(--yellow); border: 1px solid rgba(227,179,65,.35); }
+        .badge-low      { background: rgba(139,148,158,.12); color: var(--text-dim); border: 1px solid var(--border); }
+
+        .badge-mitre {
+            background: rgba(188,140,255,.12);
+            color: var(--purple);
+            border: 1px solid rgba(188,140,255,.3);
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: help;
+            white-space: nowrap;
+        }
+
+        .badge-cve {
+            background: rgba(56,139,253,.12);
+            color: var(--blue);
+            border: 1px solid rgba(56,139,253,.3);
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .badge-cve:hover { background: rgba(56,139,253,.25); }
+
+        .published-date {
+            font-size: .78rem;
+            color: var(--text-dim);
+        }
+
+        /* ── CVE Panel ───────────────────────────────────────────────── */
+        .cve-panel {
+            display: none;
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: .82rem;
+        }
+        .cve-panel.open { display: block; }
+        .cve-panel .cve-loading { color: var(--text-dim); }
+        .cve-panel .cve-score   { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .cve-panel .cve-desc    { color: var(--text-dim); line-height: 1.5; }
+        .cve-panel .cve-link    { color: var(--accent); text-decoration: none; font-size: .8rem; }
+        .cve-panel .cve-link:hover { text-decoration: underline; }
+
+        /* ── Empty ───────────────────────────────────────────────────── */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+        .empty a { color: var(--accent); text-decoration: none; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Suchergebnisse</h1>
-    </header>
-    <nav class="navbar">
-        <a href="/">← Zur Startseite</a>
-        <a href="/reports">Berichte</a>
-        <form action="/search" method="get" class="search-form">
-            <input 
-                type="text" 
-                name="q" 
-                placeholder="Suche nach CVE, Technologien, etc." 
-                value="{{ query }}">
-            <button type="submit">Suchen</button>
-        </form>
-    </nav>
-    <div class="container">
-        {% if results %}
+
+<header>
+    <h1>🔍 Suche <span>/ Security RSS Feed</span></h1>
+    <form action="/search" method="get" class="search-row">
+        <input type="text" name="q" placeholder="Suche nach CVE, Technologien, Bedrohungen …" value="{{ query }}">
+        <button type="submit">Suchen</button>
+    </form>
+</header>
+
+<nav>
+    <a href="/">← Startseite</a>
+    <a href="/reports">📋 Berichte</a>
+    <a href="/admin">⚙ Admin</a>
+</nav>
+
+<div class="container">
+    {% if results %}
+        <div class="results-summary">
+            Ergebnisse für <strong>„{{ query }}"</strong>
+        </div>
+
         {% for source, entries in results.items() %}
         <div class="results-box">
-            <h2>{{ source }}</h2>
+            <h2>{{ source }} <span style="font-weight:400; font-size:.8rem; color:var(--text-dim);">({{ entries|length }})</span></h2>
+
             {% for entry in entries %}
-            <div class="entry">
-                <a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a>
-                <div class="published-date">Published: {{ entry.published }}</div>
+            {% set sev = entry.severity | default('LOW') | lower %}
+            <div class="entry {{ sev }}">
+
+                <div class="entry-title-row">
+                    {% if entry.important %}<span title="Priority-Word Match">⚠</span>{% endif %}
+                    <a class="title-link" href="{{ entry.link }}" target="_blank" rel="noopener">
+                        {{ entry.title }}
+                    </a>
+                </div>
+
+                <div class="entry-meta">
+                    <!-- Severity Badge -->
+                    <span class="badge badge-{{ sev }}">
+                        {% if sev == 'critical' %}🔴
+                        {% elif sev == 'high' %}🟠
+                        {% elif sev == 'medium' %}🟡
+                        {% else %}⚪
+                        {% endif %}
+                        {{ entry.severity | default('LOW') }}
+                    </span>
+
+                    <!-- MITRE Tags -->
+                    {% for tag in entry.mitre_tags | default([]) %}
+                    {% set tid = tag.split('–')[0].strip() %}
+                    {% set tname = tag.split('–')[1].strip() if '–' in tag else tag %}
+                    <span class="badge badge-mitre" title="{{ tname }}">{{ tid }}</span>
+                    {% endfor %}
+
+                    <!-- CVE Badges -->
+                    {% for cve_id in entry.cve_ids | default([]) %}
+                    <span class="badge badge-cve"
+                          onclick="lookupCVE('{{ cve_id }}', this)"
+                          title="NVD-Daten laden für {{ cve_id }}">
+                        {{ cve_id }}
+                    </span>
+                    {% endfor %}
+
+                    <span class="published-date">{{ entry.published }}</span>
+                </div>
+
+                <!-- CVE Panels -->
+                {% for cve_id in entry.cve_ids | default([]) %}
+                <div class="cve-panel" id="panel-{{ cve_id }}-{{ loop.index }}"></div>
+                {% endfor %}
+
             </div>
             {% endfor %}
         </div>
         {% endfor %}
-        {% else %}
-        <p>Keine Ergebnisse für "{{ query }}" gefunden.</p>
-        {% endif %}
-    </div>
+
+    {% else %}
+        <div class="empty">
+            <p style="font-size:1.5rem; margin-bottom:12px;">🔍</p>
+            <p>Keine Ergebnisse für <strong>„{{ query }}"</strong> gefunden.</p>
+            <br>
+            <a href="/">← Alle Artikel anzeigen</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const cveCache = {};
+
+    function lookupCVE(cveId, badgeEl) {
+        const entry = badgeEl.closest('.entry');
+        const panels = entry.querySelectorAll('.cve-panel');
+        let panel = null;
+        panels.forEach(p => { if (p.id.startsWith('panel-' + cveId)) panel = p; });
+        if (!panel) return;
+
+        if (panel.classList.contains('open')) { panel.classList.remove('open'); return; }
+        panel.classList.add('open');
+
+        if (cveCache[cveId]) { renderCVE(panel, cveId, cveCache[cveId]); return; }
+
+        panel.innerHTML = '<span class="cve-loading">⏳ NVD-Daten werden abgerufen …</span>';
+
+        fetch(`/api/cve/${cveId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { panel.innerHTML = `<span style="color:var(--red)">⚠ ${data.error}</span>`; return; }
+                cveCache[cveId] = data;
+                renderCVE(panel, cveId, data);
+            })
+            .catch(() => { panel.innerHTML = '<span style="color:var(--red)">⚠ API nicht erreichbar.</span>'; });
+    }
+
+    function renderCVE(panel, cveId, d) {
+        const colors = { CRITICAL: 'var(--red)', HIGH: 'var(--orange)', MEDIUM: 'var(--yellow)', LOW: 'var(--green)' };
+        const color = colors[d.cvss_severity] || 'var(--text)';
+        panel.innerHTML = `
+            <div class="cve-score" style="color:${color}">
+                ${d.cvss_score !== null ? `CVSS ${d.cvss_version}: ${d.cvss_score} – ${d.cvss_severity}` : 'Kein CVSS Score verfügbar'}
+            </div>
+            <div class="cve-desc">${d.description}</div>
+            <a class="cve-link" href="https://nvd.nist.gov/vuln/detail/${cveId}" target="_blank" rel="noopener">
+                → NVD Details ansehen
+            </a>`;
+    }
+</script>
 </body>
 </html>
