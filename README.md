@@ -94,10 +94,12 @@ cd rss-feed
 
 ```bash
 python3 -m venv .venv
-
+```
 # Linux/macOS
+```bash
 source .venv/bin/activate
-
+```
+``` bash
 # Windows (PowerShell)
 .\.venv\Scripts\Activate
 ```
