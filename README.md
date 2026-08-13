@@ -105,7 +105,7 @@ source .venv/bin/activate
 3. Abhängigkeiten installieren:
 
 ```bash
-pip install -r requirements.txt
+pip install -r app/requirements.txt
 ```
 
 ## Starten
