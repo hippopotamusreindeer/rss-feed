@@ -143,11 +143,11 @@ Damit die App im Hintergrund läuft, ohne dass das Terminal offen bleiben muss:
 # tmux installieren (Debian/Ubuntu)
 sudo apt update && sudo apt install tmux
 ```
-# NixOS
+### NixOS
 ```bash
 nix-env -iA nixpkgs.tmux
 ```
-# Neue Session starten
+### Neue Session starten
 ```bash
 tmux new -s security-rss
 ```
