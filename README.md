@@ -155,7 +155,7 @@ tmux new -s security-rss
 ```bash
 python run.py
 ```
-# Session im Hintergrund lassen: Strg+B, dann D
+
 # Session wieder aufrufen
 ```bash
 tmux attach -t security-rss
