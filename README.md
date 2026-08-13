@@ -142,18 +142,22 @@ Damit die App im Hintergrund läuft, ohne dass das Terminal offen bleiben muss:
 ```bash
 # tmux installieren (Debian/Ubuntu)
 sudo apt update && sudo apt install tmux
-
+```
 # NixOS
+```bash
 nix-env -iA nixpkgs.tmux
-
+```
 # Neue Session starten
+```bash
 tmux new -s security-rss
-
+```
 # App starten
+```bash
 python run.py
-
+```
 # Session im Hintergrund lassen: Strg+B, dann D
 # Session wieder aufrufen
+```bash
 tmux attach -t security-rss
 ```
 
